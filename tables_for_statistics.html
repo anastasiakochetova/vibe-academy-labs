@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализ выручки по штатам</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .description {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px dashed #dee2e6;
+            text-align: center;
+        }
+        
+        .file-input {
+            margin: 15px 0;
+            padding: 12px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        select, button {
+            padding: 12px 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        select {
+            width: 150px;
+            background: white;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            color: #333;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        th:hover {
+            background-color: #2980b9;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            color: #e74c3c;
+            padding: 15px;
+            background: #fadbd8;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .success {
+            color: #27ae60;
+            padding: 15px;
+            background: #d5f5e3;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .instructions {
+            background: #e8f4fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .instructions h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            select {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Анализ выручки по штатам</h1>
+    <p class="description">Загрузите CSV файл с данными о заказах для анализа выручки по штатам</p>
+    
+    <div class="container">
+        <div class="upload-section">
+            <h2>Загрузка данных</h2>
+            <p>Выберите CSV файл для анализа (формат: name,segment,state,city,order_date,ship_mode,sales)</p>
+            <input type="file" id="csvFile" accept=".csv" class="file-input">
+        </div>
+        
+        <div class="instructions">
+            <h3>Инструкция по использованию:</h3>
+            <ol>
+                <li>Загрузите CSV файл с данными о заказах</li>
+                <li>Выберите год для анализа</li>
+                <li>Нажмите кнопку "Анализировать"</li>
+                <li>Просмотрите топ-10 штатов по выручке в таблице</li>
+                <li>Для сортировки по другому столбцу нажмите на заголовок таблицы</li>
+            </ol>
+        </div>
+        
+        <div class="controls">
+            <select id="yearSelect">
+                <option value="">Выберите год</option>
+            </select>
+            <button id="analyzeBtn" disabled>Анализировать</button>
+        </div>
+        
+        <div id="messageContainer"></div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <p>Идет обработка данных...</p>
+        </div>
+        
+        <div id="results" class="results" style="display: none;">
+            <h2>Топ 10 штатов по выручке за <span id="selectedYear"></span> год</h2>
+            <div class="table-container">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th data-sort="state">Штат ↗</th>
+                            <th data-sort="orders">Заказы ↗</th>
+                            <th data-sort="revenue">Выручка ($) ↗</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const csvFileInput = document.getElementById('csvFile');
+            const yearSelect = document.getElementById('yearSelect');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loadingElement = document.getElementById('loading');
+            const resultsElement = document.getElementById('results');
+            const resultsBody = document.getElementById('resultsBody');
+            const messageContainer = document.getElementById('messageContainer');
+            const selectedYearSpan = document.getElementById('selectedYear');
+            
+            let csvData = [];
+            let currentSort = { column: 'revenue', direction: 'desc' };
+            
+            // Обработчик выбора файла
+            csvFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.name.endsWith('.csv')) {
+                    loadCSVFile(file);
+                } else {
+                    showMessage('Пожалуйста, выберите CSV файл', 'error');
+                }
+            });
+            
+            // Обработчик кнопки анализа
+            analyzeBtn.addEventListener('click', function() {
+                analyzeData();
+            });
+            
+            // Обработчики сортировки таблицы
+            document.querySelectorAll('th[data-sort]').forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    sortTable(column);
+                });
+            });
+            
+            // Загрузка CSV файла
+            function loadCSVFile(file) {
+                showLoading(true);
+                clearMessage();
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        parseCSV(e.target.result);
+                        showMessage('Файл успешно загружен. Выберите год для анализа.', 'success');
+                        analyzeBtn.disabled = false;
+                    } catch (error) {
+                        showMessage('Ошибка при обработке файла: ' + error.message, 'error');
+                    } finally {
+                        showLoading(false);
+                    }
+                };
+                reader.onerror = function() {
+                    showMessage('Ошибка при чтении файла', 'error');
+                    showLoading(false);
+                };
+                reader.readAsText(file);
+            }
+            
+            // Парсинг CSV
+            function parseCSV(csvText) {
+                const lines = csvText.split('\n').filter(line => line.trim());
+                if (lines.length < 2) {
+                    throw new Error('CSV файл не содержит данных');
+                }
+                
+                // Получаем заголовки
+                const headers = lines[0].split(',').map(header => header.trim());
+                
+                // Проверяем наличие необходимых колонок
+                const requiredColumns = ['state', 'order_date', 'sales'];
+                requiredColumns.forEach(col => {
+                    if (!headers.includes(col)) {
+                        throw new Error(`Отсутствует обязательная колонка: ${col}`);
+                    }
+                });
+                
+                // Парсим данные
+                csvData = [];
+                const years = new Set();
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    if (values.length === headers.length) {
+                        const row = {};
+                        headers.forEach((header, index) => {
+                            row[header] = values[index].trim();
+                        });
+                        
+                        // Извлекаем год из даты
+                        const date = new Date(row.order_date);
+                        if (!isNaN(date.getTime())) {
+                            row.year = date.getFullYear();
+                            years.add(row.year);
+                            
+                            // Преобразуем sales в число
+                            row.sales = parseFloat(row.sales) || 0;
+                            
+                            csvData.push(row);
+                        }
+                    }
+                }
+                
+                // Заполняем выпадающий список годов
+                populateYearSelect(years);
+            }
+            
+            // Парсинг строки CSV с учетом кавычек
+            function parseCSVLine(line) {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    
+                    if (char === '"' && (i === 0 || line[i-1] !== '\\')) {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current);
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                
+                result.push(current);
+                return result;
+            }
+            
+            // Заполнение выпадающего списка годов
+            function populateYearSelect(years) {
+                yearSelect.innerHTML = '<option value="">Выберите год</option>';
+                
+                // Сортируем годы по убыванию
+                const sortedYears = Array.from(years).sort((a, b) => b - a);
+                
+                sortedYears.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                });
+            }
+            
+            // Анализ данных
+            function analyzeData() {
+                const selectedYear = parseInt(yearSelect.value);
+                
+                if (!selectedYear) {
+                    showMessage('Пожалуйста, выберите год для анализа', 'error');
+                    return;
+                }
+                
+                showLoading(true);
+                clearMessage();
+                
+                // Имитируем асинхронную обработку
+                setTimeout(() => {
+                    try {
+                        const results = calculateRevenueByState(selectedYear);
+                        displayResults(results, selectedYear);
+                        showLoading(false);
+                    } catch (error) {
+                        showMessage('Ошибка при анализе данных: ' + error.message, 'error');
+                        showLoading(false);
+                    }
+                }, 500);
+            }
+            
+            // Расчет выручки по штатам
+            function calculateRevenueByState(year) {
+                const stateData = {};
+                
+                // Фильтруем данные по году и агрегируем по штатам
+                csvData
+                    .filter(row => row.year === year)
+                    .forEach(row => {
+                        const state = row.state;
+                        if (!stateData[state]) {
+                            stateData[state] = {
+                                revenue: 0,
+                                orders: 0
+                            };
+                        }
+                        
+                        stateData[state].revenue += row.sales;
+                        stateData[state].orders += 1;
+                    });
+                
+                // Преобразуем в массив и сортируем по выручке
+                return Object.entries(stateData)
+                    .map(([state, data]) => ({
+                        state,
+                        revenue: data.revenue,
+                        orders: data.orders
+                    }))
+                    .sort((a, b) => b.revenue - a.revenue)
+                    .slice(0, 10);
+            }
+            
+            // Отображение результатов
+            function displayResults(results, year) {
+                selectedYearSpan.textContent = year;
+                resultsBody.innerHTML = '';
+                
+                if (results.length === 0) {
+                    showMessage('Нет данных для выбранного года', 'error');
+                    resultsElement.style.display = 'none';
+                    return;
+                }
+                
+                results.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${item.state}</td>
+                        <td>${formatNumber(item.orders)}</td>
+                        <td>$${formatNumber(item.revenue.toFixed(2))}</td>
+                    `;
+                    
+                    resultsBody.appendChild(row);
+                });
+                
+                resultsElement.style.display = 'block';
+            }
+            
+            // Форматирование чисел с разделителями тысяч
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+            
+            // Сортировка таблицы
+            function sortTable(column) {
+                if (currentSort.column === column) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort = { column, direction: 'desc' };
+                }
+                
+                const rows = Array.from(resultsBody.querySelectorAll('tr'));
+                const multiplier = currentSort.direction === 'asc' ? 1 : -1;
+                
+                rows.sort((a, b) => {
+                    const aValue = getCellValue(a, currentSort.column);
+                    const bValue = getCellValue(b, currentSort.column);
+                    
+                    if (currentSort.column === 'revenue' || currentSort.column === 'orders') {
+                        return (parseFloat(aValue.replace(/,/g, '')) - parseFloat(bValue.replace(/,/g, ''))) * multiplier;
+                    } else {
+                        return aValue.localeCompare(bValue) * multiplier;
+                    }
+                });
+                
+                // Обновляем индикаторы сортировки в заголовках
+                document.querySelectorAll('th[data-sort]').forEach(header => {
+                    const headerColumn = header.getAttribute('data-sort');
+                    header.textContent = header.textContent.replace(/ [↗↘]$/, '');
+                    if (headerColumn === currentSort.column) {
+                        header.textContent += currentSort.direction === 'asc' ? ' ↘' : ' ↗';
+                    }
+                });
+                
+                // Очищаем и перестраиваем таблицу
+                resultsBody.innerHTML = '';
+                rows.forEach((row, index) => {
+                    // Обновляем номер строки при сортировке
+                    row.cells[0].textContent = index + 1;
+                    resultsBody.appendChild(row);
+                });
+            }
+            
+            // Получение значения ячейки
+            function getCellValue(row, column) {
+                const indexMap = {
+                    'state': 1,
+                    'orders': 2,
+                    'revenue': 3
+                };
+                return row.cells[indexMap[column]].textContent;
+            }
+            
+            // Вспомогательные функции UI
+            function showLoading(show) {
+                loadingElement.style.display = show ? 'block' : 'none';
+            }
+            
+            function showMessage(message, type) {
+                messageContainer.innerHTML = `<div class="${type}">${message}</div>`;
+            }
+            
+            function clearMessage() {
+                messageContainer.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
