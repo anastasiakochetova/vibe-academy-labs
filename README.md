@@ -1,18 +1,18 @@
-# University-practice-of-vibcoding
-University labs
+# Web Development University Labs 🎓
 
-### About The Project
+A structured collection of my practical works, assignments, and projects completed during my university studies in web development.
 
-This repository is a collection of my practical works, exercises, and small projects created while learning web development.
+This repository serves as a personal log of my learning journey and a demonstration of my growing skills in front-end and back-end technologies.
 
-Here you will find code written during my studies of various technologies, such as:
-*   **HTML** & **CSS** (including Flexbox, Grid, Responsive Design)
-*   **JavaScript** (basics, DOM, ES6+, Async)
-*   And potentially other frameworks and libraries as I progress.
+## 🚀 Technologies & Skills
 
-### Goals
-*   To organize and store my learning code.
-*   To demonstrate learning progress.
-*   To practice using Git and GitHub.
+*   **Front-End:**
+    *   **HTML5:** Semantic markup, forms, accessibility.
+    *   **CSS3:** Flexbox, Grid, animations, transitions, responsive design (Mobile First), Sass/SCSS.
+    *   **JavaScript (ES6+):** DOM manipulation, async programming (Fetch API, Promises, async/await), OOP, modules.
+*   **Tools & Practices:**
+    *   Git & GitHub, Command Line, Figma (for layout modeling).
 
-### Repository Structure
+*(As I progress, this section will be updated with new technologies like React, Node.js, etc.)*
+
+## 📁 Repository Structure
