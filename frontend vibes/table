@@ -167,21 +167,7 @@
         
         .instructions {
             background: #e8f4fc;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            line-height: 1.6;
-        }
-        
-        .instructions h3 {
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
+            padding: 20px
             
             .controls {
                 flex-direction: column;
